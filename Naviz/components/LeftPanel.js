@@ -1,0 +1,20 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { ScrollArea } from './ui/scroll-area';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Separator } from './ui/separator';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import { Maximize } from 'lucide-react';
+const LeftPanel = ({ featureCategories, categoryPanelVisible, searchTerm, activeFeatures, currentLayoutMode, onCategoryToggle, onSearchChange, onFeatureToggle, onClose }) => {
+    const getFilteredFeatures = (features) => {
+        if (!searchTerm)
+            return features;
+        return features.filter(f => f.name.toLowerCase().includes(searchTerm.toLowerCase()));
+    };
+    const renderFeatureButton = (feature, size) => (_jsx(TooltipProvider, { children: _jsxs(Tooltip, { children: [_jsx(TooltipTrigger, { asChild: true, children: _jsxs(Button, { size: size, variant: activeFeatures.has(feature.id) ? 'default' : 'outline', onClick: () => onFeatureToggle(feature.id, !activeFeatures.has(feature.id)), className: "flex items-center gap-2", children: [feature.icon, _jsx("span", { children: feature.name })] }) }), _jsx(TooltipContent, { children: _jsxs("div", { className: "text-xs", children: [_jsx("div", { className: "font-medium", children: feature.name }), _jsx("div", { className: "text-muted-foreground", children: feature.description }), _jsx("div", { className: "text-muted-foreground mt-1", children: _jsx("kbd", { className: "px-1 py-0.5 bg-muted rounded text-xs", children: feature.hotkey }) })] }) })] }) }, feature.id));
+    const renderCategoryToggles = () => (_jsx("div", { className: "flex gap-2 mb-2 flex-wrap", children: Object.keys(featureCategories).map(category => (_jsx(TooltipProvider, { children: _jsxs(Tooltip, { children: [_jsx(TooltipTrigger, { asChild: true, children: _jsxs(Button, { size: "sm", variant: categoryPanelVisible[category] ? "default" : "outline", onClick: () => onCategoryToggle(category), className: "capitalize", children: [categoryPanelVisible[category] ? "Hide" : "Show", " ", category] }) }), _jsx(TooltipContent, { children: _jsxs("div", { className: "text-xs", children: [_jsxs("div", { className: "font-medium capitalize", children: [category, " Features"] }), _jsxs("div", { className: "text-muted-foreground", children: [categoryPanelVisible[category] ? "Hide" : "Show", " ", category, " feature panel"] })] }) })] }) }, category))) }));
+    const renderCategoryPanels = () => (_jsx("div", { children: Object.entries(featureCategories).map(([category, features], index) => (categoryPanelVisible[category] && (_jsxs("div", { children: [_jsxs(Card, { className: "mb-4", children: [_jsx(CardHeader, { children: _jsxs(CardTitle, { className: "capitalize", children: [category, " Features"] }) }), _jsx(CardContent, { children: _jsx("div", { className: "grid gap-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-2", children: getFilteredFeatures(features).map(feature => renderFeatureButton(feature, currentLayoutMode === 'compact' ? 'sm' : 'default')) }) })] }), index < Object.entries(featureCategories).filter(([cat]) => categoryPanelVisible[cat]).length - 1 && (_jsx(Separator, { className: "my-4 bg-gray-600" }))] }, category)))) }));
+    return (_jsxs("div", { className: "flex flex-col w-72 border-r border-gray-700 bg-gray-900 text-white", children: [_jsxs("div", { className: "p-4 border-b border-gray-700 flex items-center justify-between", children: [_jsx("h2", { className: "text-lg font-semibold", children: "Workspace" }), _jsx(Button, { size: "sm", variant: "ghost", onClick: onClose, children: _jsx(Maximize, { className: "w-4 h-4" }) })] }), _jsx(ScrollArea, { className: "flex-1", children: _jsxs("div", { className: "p-4", children: [renderCategoryToggles(), _jsx("div", { className: "mb-4", children: _jsx(Input, { placeholder: "Search features...", value: searchTerm, onChange: (e) => onSearchChange(e.target.value), className: "w-full" }) }), renderCategoryPanels()] }) })] }));
+};
+export default LeftPanel;

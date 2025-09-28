@@ -1,0 +1,11 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { Button } from './ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Maximize } from 'lucide-react';
+const RightPanel = ({ visible, selectedMesh, scene, engine, activeFeatures, performanceMode, onFeatureToggle, onClose }) => {
+    if (!visible)
+        return null;
+    return (_jsxs("div", { className: "w-80 border-l border-gray-700 bg-gray-900 text-white", children: [_jsxs("div", { className: "p-4 border-b border-gray-700 flex items-center justify-between", children: [_jsx("h2", { className: "text-lg font-semibold", children: "Inspector" }), _jsx(Button, { size: "sm", variant: "ghost", onClick: onClose, children: _jsx(Maximize, { className: "w-4 h-4" }) })] }), _jsxs(Tabs, { defaultValue: "features", className: "w-full", children: [_jsxs(TabsList, { className: "grid w-full grid-cols-2", children: [_jsx(TabsTrigger, { value: "properties", children: "Properties" }), _jsx(TabsTrigger, { value: "features", children: "Features" })] }), _jsx(TabsContent, { value: "properties", className: "p-4", children: _jsxs(Card, { children: [_jsx(CardHeader, { children: _jsx(CardTitle, { children: "Object Properties" }) }), _jsx(CardContent, { children: selectedMesh ? (_jsxs("div", { className: "space-y-2", children: [_jsxs("div", { children: [_jsx("strong", { children: "Name:" }), " ", selectedMesh.name] }), _jsxs("div", { children: [_jsx("strong", { children: "Position:" }), " ", selectedMesh.position.toString()] }), _jsxs("div", { children: [_jsx("strong", { children: "Rotation:" }), " ", selectedMesh.rotation.toString()] }), _jsxs("div", { children: [_jsx("strong", { children: "Scale:" }), " ", selectedMesh.scaling.toString()] })] })) : (_jsx("p", { className: "text-muted-foreground", children: "No object selected" })) })] }) }), _jsx(TabsContent, { value: "features", className: "p-4", children: _jsxs(Card, { children: [_jsx(CardHeader, { children: _jsx(CardTitle, { children: "Feature Manager" }) }), _jsx(CardContent, { children: _jsx("p", { className: "text-muted-foreground", children: "Feature management interface will be implemented here." }) })] }) })] })] }));
+};
+export default RightPanel;

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Model Import Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: white;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #333;
+            border-radius: 8px;
+        }
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #0056b3;
+        }
+        .test-button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .success { background: #28a745; }
+        .error { background: #dc3545; }
+        .info { background: #17a2b8; }
+        .warning { background: #ffc107; color: black; }
+        .file-input {
+            margin: 10px 0;
+        }
+        .preview-area {
+            width: 100%;
+            height: 400px;
+            border: 2px dashed #333;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #2a2a2a;
+        }
+        .model-info {
+            margin: 10px 0;
+            padding: 10px;
+            background: #2a2a2a;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Model Import Button Testing</h1>
+
+    <div class="test-section">
+        <h2>Test 1: File Upload Simulation</h2>
+        <p>This test simulates the file upload process from the UploadPage component.</p>
+
+        <div>
+            <label for="model-title">Model Title:</label>
+            <input type="text" id="model-title" placeholder="e.g., Modern Office Chair" value="Test Model">
+        </div>
+
+        <div>
+            <label for="model-description">Description:</label>
+            <textarea id="model-description" placeholder="Describe the model...">Test 3D model for import testing</textarea>
+        </div>
+
+        <div>
+            <label for="model-tags">Tags:</label>
+            <input type="text" id="model-tags" placeholder="furniture, chair, modern" value="test, model, import">
+        </div>
+
+        <div class="file-input">
+            <label for="file-input">Select 3D Model File:</label>
+            <input type="file" id="file-input" accept=".glb,.gltf,.fbx,.obj,.stl">
+            <small>Supported formats: .glb, .gltf, .fbx, .obj, .stl</small>
+        </div>
+
+        <button class="test-button" onclick="simulateUpload()">Simulate Upload</button>
+        <button class="test-button" onclick="clearUpload()">Clear</button>
+
+        <div id="upload-status" class="status info" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Model Preview</h2>
+        <p>This test simulates the preview functionality that loads the model in Babylon.js workspace.</p>
+
+        <button class="test-button" id="preview-btn" onclick="previewModel()" disabled>Preview Model</button>
+        <button class="test-button" onclick="loadSampleModel()">Load Sample Model</button>
+
+        <div id="preview-status" class="status info" style="display: none;"></div>
+
+        <div class="model-info" id="model-info" style="display: none;">
+            <h3>Model Information:</h3>
+            <div id="model-details"></div>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Babylon.js Integration</h2>
+        <p>This section tests the actual Babylon.js model loading functionality.</p>
+
+        <div class="preview-area" id="babylon-canvas">
+            <div id="loading-indicator">
+                <p>Canvas ready for model loading</p>
+                <p>Click "Preview Model" or "Load Sample Model" to test</p>
+            </div>
+        </div>
+
+        <div id="babylon-status" class="status info" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test Results</h2>
+        <div id="test-results"></div>
+    </div>
+
+    <script>
+        let currentFile = null;
+        let babylonEngine = null;
+        let babylonScene = null;
+        let babylonCamera = null;
+
+        // Initialize Babylon.js
+        function initBabylon() {
+            const canvas = document.getElementById('babylon-canvas');
+            if (!canvas) return;
+
+            try {
+                // Create Babylon.js engine
+                if (typeof BABYLON === 'undefined') {
+                    throw new Error('Babylon.js not loaded');
+                }
+
+                babylonEngine = new BABYLON.Engine(canvas, true);
+                babylonScene = new BABYLON.Scene(babylonEngine);
+                babylonCamera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 10, BABYLON.Vector3.Zero(), babylonScene);
+                babylonCamera.attachControl(canvas, true);
+
+                // Add basic lighting
+                const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0), babylonScene);
+                light.intensity = 0.7;
+
+                // Add ground plane
+                const ground = BABYLON.Mesh.CreateGround("ground", 10, 10, 2, babylonScene);
+                const groundMaterial = new BABYLON.StandardMaterial("groundMaterial", babylonScene);
+                groundMaterial.diffuseColor = new BABYLON.Color3(0.5, 0.5, 0.5);
+                ground.material = groundMaterial;
+
+                // Start render loop
+                babylonEngine.runRenderLoop(() => {
+                    babylonScene.render();
+                });
+
+                // Handle window resize
+                window.addEventListener('resize', () => {
+                    babylonEngine.resize();
+                });
+
+                updateStatus('babylon-status', 'success', 'Babylon.js initialized successfully');
+                return true;
+            } catch (error) {
+                updateStatus('babylon-status', 'error', `Babylon.js initialization failed: ${error.message}`);
+                return false;
+            }
+        }
+
+        function simulateUpload() {
+            const fileInput = document.getElementById('file-input');
+            const title = document.getElementById('model-title').value;
+            const description = document.getElementById('model-description').value;
+            const tags = document.getElementById('model-tags').value;
+
+            if (!fileInput.files[0]) {
+                updateStatus('upload-status', 'error', 'Please select a file first');
+                return;
+            }
+
+            if (!title) {
+                updateStatus('upload-status', 'error', 'Please provide a model title');
+                return;
+            }
+
+            currentFile = fileInput.files[0];
+            updateStatus('upload-status', 'success', `File "${currentFile.name}" ready for upload`);
+
+            // Enable preview button
+            document.getElementById('preview-btn').disabled = false;
+
+            // Simulate upload process
+            simulateUploadProcess(currentFile, title, description, tags);
+        }
+
+        function simulateUploadProcess(file, title, description, tags) {
+            updateStatus('upload-status', 'info', 'Uploading file...');
+
+            // Simulate upload progress
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 20;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(progressInterval);
+                    updateStatus('upload-status', 'success', 'Upload complete! Model processed successfully.');
+                } else {
+                    updateStatus('upload-status', 'info', `Uploading... ${Math.round(progress)}%`);
+                }
+            }, 200);
+        }
+
+        function previewModel() {
+            if (!currentFile) {
+                updateStatus('preview-status', 'error', 'No file selected for preview');
+                return;
+            }
+
+            const title = document.getElementById('model-title').value;
+            const description = document.getElementById('model-description').value;
+            const tags = document.getElementById('model-tags').value;
+
+            // Create blob URL for the file
+            const modelUrl = URL.createObjectURL(currentFile);
+
+            // Simulate model data structure (similar to UploadPage)
+            const mockModel = {
+                id: Math.random().toString(36).substr(2, 9),
+                name: currentFile.name.replace(/\.[^/.]+$/, ''),
+                description: description || 'Uploaded 3D model',
+                thumbnail: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=200&fit=crop',
+                tags: tags.split(',').map(tag => tag.trim()).filter(Boolean),
+                uploadDate: new Date().toISOString().split('T')[0],
+                uploader: 'test-user',
+                size: (currentFile.size / (1024 * 1024)).toFixed(1) + ' MB',
+                format: currentFile.name.split('.').pop().toUpperCase(),
+                assignedClients: [],
+                views: 0,
+                modelUrl: modelUrl
+            };
+
+            // Display model information
+            displayModelInfo(mockModel);
+
+            // Load model in Babylon.js
+            loadModelInBabylon(modelUrl, mockModel);
+
+            updateStatus('preview-status', 'success', `Previewing model: ${mockModel.name}`);
+        }
+
+        function loadSampleModel() {
+            // Load a sample GLB model from a public URL
+            const sampleModelUrl = 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF/Duck.gltf';
+
+            const mockModel = {
+                id: 'sample-duck',
+                name: 'Sample Duck Model',
+                description: 'GLTF sample model for testing',
+                thumbnail: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300&h=200&fit=crop',
+                tags: ['sample', 'gltf', 'test'],
+                uploadDate: new Date().toISOString().split('T')[0],
+                uploader: 'system',
+                size: '0.1 MB',
+                format: 'GLTF',
+                assignedClients: [],
+                views: 0,
+                modelUrl: sampleModelUrl
+            };
+
+            displayModelInfo(mockModel);
+            loadModelInBabylon(sampleModelUrl, mockModel);
+            updateStatus('preview-status', 'success', 'Loading sample model...');
+        }
+
+        function displayModelInfo(model) {
+            const modelInfo = document.getElementById('model-info');
+            const modelDetails = document.getElementById('model-details');
+
+            modelDetails.innerHTML = `
+                <p><strong>Name:</strong> ${model.name}</p>
+                <p><strong>Description:</strong> ${model.description}</p>
+                <p><strong>Format:</strong> ${model.format}</p>
+                <p><strong>Size:</strong> ${model.size}</p>
+                <p><strong>Upload Date:</strong> ${model.uploadDate}</p>
+                <p><strong>Tags:</strong> ${model.tags.join(', ')}</p>
+                <p><strong>Uploader:</strong> ${model.uploader}</p>
+            `;
+
+            modelInfo.style.display = 'block';
+        }
+
+        function loadModelInBabylon(modelUrl, model) {
+            if (!babylonScene) {
+                if (!initBabylon()) {
+                    updateStatus('babylon-status', 'error', 'Failed to initialize Babylon.js');
+                    return;
+                }
+            }
+
+            // Clear existing meshes (except ground and lights)
+            babylonScene.meshes.forEach(mesh => {
+                if (mesh.name !== 'ground' && !mesh.name.includes('light')) {
+                    mesh.dispose();
+                }
+            });
+
+            // Load the model
+            BABYLON.SceneLoader.ImportMesh("", "", modelUrl, babylonScene, (meshes) => {
+                updateStatus('babylon-status', 'success', `Model loaded successfully: ${meshes.length} meshes`);
+
+                // Center the camera on the loaded model
+                if (meshes.length > 0) {
+                    const boundingInfo = BABYLON.Mesh.MergeMeshes(meshes, true, true, undefined, false, true).getBoundingInfo();
+                    const center = boundingInfo.boundingBox.center;
+                    const radius = boundingInfo.boundingSphere.radius;
+
+                    babylonCamera.setTarget(center);
+                    babylonCamera.setPosition(center.add(new BABYLON.Vector3(radius * 2, radius, radius * 2)));
+                }
+
+                // Add to test results
+                addTestResult('Model Load Test', 'PASS', `Successfully loaded ${model.name} with ${meshes.length} meshes`);
+            }, (progress) => {
+                // Update loading progress
+                updateStatus('babylon-status', 'info', `Loading model... ${Math.round(progress.loaded / progress.total * 100)}%`);
+            }, (error) => {
+                updateStatus('babylon-status', 'error', `Failed to load model: ${error.message}`);
+                addTestResult('Model Load Test', 'FAIL', `Failed to load ${model.name}: ${error.message}`);
+            });
+        }
+
+        function clearUpload() {
+            document.getElementById('file-input').value = '';
+            document.getElementById('model-title').value = '';
+            document.getElementById('model-description').value = '';
+            document.getElementById('model-tags').value = '';
+            currentFile = null;
+            document.getElementById('preview-btn').disabled = true;
+            document.getElementById('upload-status').style.display = 'none';
+            document.getElementById('model-info').style.display = 'none';
+            updateStatus('upload-status', 'info', 'Upload cleared');
+        }
+
+        function updateStatus(elementId, type, message) {
+            const element = document.getElementById(elementId);
+            element.className = `status ${type}`;
+            element.textContent = message;
+            element.style.display = 'block';
+        }
+
+        function addTestResult(testName, result, details) {
+            const resultsDiv = document.getElementById('test-results');
+            const timestamp = new Date().toLocaleTimeString();
+            const resultClass = result === 'PASS' ? 'success' : 'error';
+
+            resultsDiv.innerHTML += `
+                <div class="status ${resultClass}">
+                    <strong>${timestamp} - ${testName}:</strong> ${result}<br>
+                    <small>${details}</small>
+                </div>
+            `;
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            initBabylon();
+            addTestResult('Initialization', 'PASS', 'Test page loaded successfully');
+        });
+
+        // File input change handler
+        document.getElementById('file-input').addEventListener('change', (e) => {
+            if (e.target.files[0]) {
+                updateStatus('upload-status', 'info', `File selected: ${e.target.files[0].name}`);
+            }
+        });
+    </script>
+
+    <!-- Load Babylon.js -->
+    <script src="https://cdn.babylonjs.com/babylon.js"></script>
+    <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
+</body>
+</html>

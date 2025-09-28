@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - NAVIZ Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Breadcrumb Styles */
+        .breadcrumb {
+            background: rgba(255, 255, 255, 0.95);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 16px 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .breadcrumb-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .breadcrumb-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            padding: 4px 8px;
+            border-radius: 6px;
+        }
+
+        .breadcrumb-link:hover {
+            color: #5a67d8;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .breadcrumb-separator {
+            color: #a0aec0;
+            font-size: 14px;
+        }
+
+        .breadcrumb-current {
+            color: #4a5568;
+            font-weight: 600;
+            padding: 4px 8px;
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 6px;
+        }
+
+        /* Dropdown Styles */
+        .dropdown-container {
+            position: relative;
+        }
+
+        .breadcrumb-dropdown-btn {
+            background: none;
+            border: none;
+            color: #667eea;
+            font-weight: 500;
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .breadcrumb-dropdown-btn:hover {
+            color: #5a67d8;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .dropdown-arrow {
+            font-size: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .dropdown-container.active .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: rgba(255, 255, 255, 0.95);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            min-width: 180px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .dropdown-container.active .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            display: block;
+            padding: 12px 16px;
+            color: #4a5568;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+        }
+
+        .dropdown-item.active {
+            background: rgba(102, 126, 234, 0.15);
+            color: #5a67d8;
+            font-weight: 600;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 1.1rem;
+        }
+
+        /* Controls */
+        .controls {
+            background: rgba(255, 255, 255, 0.95);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+            transform: translateY(-1px);
+        }
+
+        /* Users Table */
+        .table-container {
+            background: rgba(255, 255, 255, 0.95);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-header {
+            background: #f7fafc;
+            padding: 20px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .table-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .table-count {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .users-table th {
+            background: #f7fafc;
+            padding: 16px 24px;
+            text-align: left;
+            font-weight: 600;
+            color: #4a5568;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .users-table td {
+            padding: 16px 24px;
+            border-bottom: 1px solid #e2e8f0;
+            vertical-align: middle;
+        }
+
+        .users-table tr:hover {
+            background: #f7fafc;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            margin-right: 12px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .user-email {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .status-inactive {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .status-pending {
+            background: #fef5e7;
+            color: #744210;
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .action-edit {
+            background: #667eea;
+            color: white;
+        }
+
+        .action-edit:hover {
+            background: #5a67d8;
+        }
+
+        .action-delete {
+            background: #e53e3e;
+            color: white;
+        }
+
+        .action-delete:hover {
+            background: #c53030;
+        }
+
+        /* Pagination */
+        .pagination {
+            background: rgba(255, 255, 255, 0.95);
+            -webkit-backdrop-filter: blur(10px);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-top: 24px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .pagination-info {
+            color: #718096;
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .pagination-btn {
+            padding: 8px 16px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            color: #4a5568;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .pagination-btn:hover:not(.disabled) {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .pagination-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .pagination-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+
+            .breadcrumb {
+                padding: 12px 16px;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                min-width: auto;
+            }
+
+            .users-table {
+                font-size: 0.9rem;
+            }
+
+            .users-table th,
+            .users-table td {
+                padding: 12px 16px;
+            }
+
+            .actions-cell {
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .pagination {
+                flex-direction: column;
+                gap: 16px;
+            }
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .table-container, .controls, .pagination {
+            animation: fadeIn 0.6s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Breadcrumb Navigation -->
+        <nav class="breadcrumb" aria-label="Breadcrumb">
+            <div class="breadcrumb-item">
+                <a href="index.html" class="breadcrumb-link">🏠 Home</a>
+            </div>
+            <div class="breadcrumb-separator">›</div>
+            <div class="breadcrumb-item dropdown-container">
+                <button class="breadcrumb-dropdown-btn" onclick="toggleDropdown('admin-dropdown')">
+                    👑 Admin
+                    <span class="dropdown-arrow">▼</span>
+                </button>
+                <div id="admin-dropdown" class="dropdown-menu">
+                    <a href="admin-updated-fixed.html" class="dropdown-item">Dashboard</a>
+                    <a href="admin-users-fixed.html" class="dropdown-item active">User Management</a>
+                    <a href="admin-models.html" class="dropdown-item">Model Management</a>
+                    <a href="admin-analytics.html" class="dropdown-item">Analytics</a>
+                    <a href="admin-settings.html" class="dropdown-item">Settings</a>
+                </div>
+            </div>
+            <div class="breadcrumb-separator">›</div>
+            <div class="breadcrumb-item">
+                <span class="breadcrumb-current">👥 Users</span>
+            </div>
+        </nav>
+
+        <!-- Header -->
+        <div class="header">
+            <h1>👥 User Management</h1>
+            <p>Manage user accounts, permissions, and access levels for the NAVIZ platform.</p>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" class="search-input" placeholder="Search users by name or email..." onkeyup="filterUsers()">
+            </div>
+            <button class="btn btn-primary" onclick="showAddUserModal()">
+                ➕ Add User
+            </button>
+            <button class="btn btn-secondary" onclick="exportUsers()">
+                📥 Export
+            </button>
+        </div>
+
+        <!-- Users Table -->
+        <div class="table-container">
+            <div class="table-header">
+                <div>
+                    <div class="table-title">Users</div>
+                    <div class="table-count" id="userCount">1,234 users</div>
+                </div>
+            </div>
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Last Login</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                    <tr>
+                        <td>
+                            <div class="user-info">
+                                <div class="user-avatar">JD</div>
+                                <div>
+                                    <div class="user-name">John Doe</div>
+                                    <div class="user-email">john.doe@example.com</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>Admin</td>
+                        <td><span class="status-badge status-active">Active</span></td>
+                        <td>2 hours ago</td>
+                        <td class="actions-cell">
+                            <button class="action-btn action-edit" onclick="editUser('john.doe@example.com')">Edit</button>
+                            <button class="action-btn action-delete" onclick="deleteUser('john.doe@example.com')">Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="user-info">
+                                <div class="user-avatar">JS</div>
+                                <div>
+                                    <div class="user-name">Jane Smith</div>
+                                    <div class="user-email">jane.smith@example.com</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>User</td>
+                        <td><span class="status-badge status-active">Active</span></td>
+                        <td>1 day ago</td>
+                        <td class="actions-cell">
+                            <button class="action-btn action-edit" onclick="editUser('jane.smith@example.com')">Edit</button>
+                            <button class="action-btn action-delete" onclick="deleteUser('jane.smith@example.com')">Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="user-info">
+                                <div class="user-avatar">MB</div>
+                                <div>
+                                    <div class="user-name">Mike Brown</div>
+                                    <div class="user-email">mike.brown@example.com</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>User</td>
+                        <td><span class="status-badge status-inactive">Inactive</span></td>
+                        <td>1 week ago</td>
+                        <td class="actions-cell">
+                            <button class="action-btn action-edit" onclick="editUser('mike.brown@example.com')">Edit</button>
+                            <button class="action-btn action-delete" onclick="deleteUser('mike.brown@example.com')">Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class="user-info">
+                                <div class="user-avatar">SL</div>
+                                <div>
+                                    <div class="user-name">Sarah Lee</div>
+                                    <div class="user-email">sarah.lee@example.com</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>Moderator</td>
+                        <td><span class="status-badge status-pending">Pending</span></td>
+                        <td>Never</td>
+                        <td class="actions-cell">
+                            <button class="action-btn action-edit" onclick="editUser('sarah.lee@example.com')">Edit</button>
+                            <button class="action-btn action-delete" onclick="deleteUser('sarah.lee@example.com')">Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+            <div class="pagination-info">
+                Showing 1-4 of 1,234 users
+            </div>
+            <div class="pagination-controls">
+                <button class="pagination-btn" onclick="previousPage()" disabled>Previous</button>
+                <button class="pagination-btn active" onclick="goToPage(1)">1</button>
+                <button class="pagination-btn" onclick="goToPage(2)">2</button>
+                <button class="pagination-btn" onclick="goToPage(3)">3</button>
+                <button class="pagination-btn" onclick="goToPage(4)">4</button>
+                <button class="pagination-btn" onclick="goToPage(5)">5</button>
+                <button class="pagination-btn" onclick="nextPage()">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Dropdown functionality
+        function toggleDropdown(dropdownId) {
+            const dropdown = document.getElementById(dropdownId);
+            const container = dropdown.parentElement;
+
+            // Close all other dropdowns
+            document.querySelectorAll('.dropdown-container').forEach(container => {
+                if (container !== dropdown.parentElement) {
+                    container.classList.remove('active');
+                }
+            });
+
+            // Toggle current dropdown
+            container.classList.toggle('active');
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.dropdown-container')) {
+                document.querySelectorAll('.dropdown-container').forEach(container => {
+                    container.classList.remove('active');
+                });
+            }
+        });
+
+        // User management functions
+        function filterUsers() {
+            const searchInput = document.querySelector('.search-input');
+            const filter = searchInput.value.toLowerCase();
+            const rows = document.querySelectorAll('#usersTableBody tr');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(filter) ? '' : 'none';
+            });
+        }
+
+        function showAddUserModal() {
+            alert('Add User modal would open here. This would include a form to create new user accounts.');
+        }
+
+        function editUser(email) {
+            alert(`Edit user: ${email}\n\nThis would open an edit form with user details, permissions, and settings.`);
+        }
+
+        function deleteUser(email) {
+            if (confirm(`Are you sure you want to delete the user: ${email}?`)) {
+                alert(`User ${email} would be deleted from the system.`);
+                // In a real app, this would make an API call to delete the user
+            }
+        }
+
+        function exportUsers() {
+            alert('Export functionality would generate a CSV/Excel file with user data.');
+        }
+
+        // Pagination functions
+        function previousPage() {
+            alert('Previous page functionality would be implemented here.');
+        }
+
+        function nextPage() {
+            alert('Next page functionality would be implemented here.');
+        }
+
+        function goToPage(page) {
+            alert(`Navigate to page ${page} functionality would be implemented here.`);
+        }
+
+        // Add click handlers for breadcrumb navigation
+        document.querySelectorAll('.breadcrumb-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const href = this.getAttribute('href');
+                if (href && href !== '#') {
+                    console.log(`Breadcrumb navigation to: ${href}`);
+                }
+            });
+        });
+
+        // Add click handlers for dropdown items
+        document.querySelectorAll('.dropdown-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                const href = this.getAttribute('href');
+                if (href && href !== '#') {
+                    console.log(`Dropdown navigation to: ${href}`);
+                    // Close dropdown
+                    this.closest('.dropdown-container').classList.remove('active');
+                }
+            });
+        });
+
+        // Initialize with smooth animations
+        setTimeout(() => {
+            document.body.style.opacity = '1';
+        }, 100);
+    </script>
+</body>
+</html>

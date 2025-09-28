@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Food Expiry Tracker Demo</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide-react@0.263.1/dist/umd/lucide-react.js"></script>
+    <script src="https://unpkg.com/date-fns@2.30.0/index.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .demo-header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        .demo-header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+        .demo-header p {
+            margin: 1rem 0 0 0;
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        .demo-content {
+            padding: 2rem;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        .feature-card {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 1.5rem;
+            border-left: 4px solid #4f46e5;
+        }
+        .feature-card h3 {
+            margin: 0 0 1rem 0;
+            color: #1e293b;
+            font-size: 1.25rem;
+        }
+        .feature-card p {
+            margin: 0;
+            color: #64748b;
+            line-height: 1.6;
+        }
+        .demo-button {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+            margin: 1rem;
+        }
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+        }
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .status-online {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .status-offline {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+        }
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #4f46e5;
+            margin-bottom: 0.5rem;
+        }
+        .stat-label {
+            color: #64748b;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-container">
+        <div class="demo-header">
+            <h1>🍎 Enhanced Food Expiry Tracker</h1>
+            <p>Advanced food management with AR/VR, collaboration, and analytics features</p>
+            <div style="margin-top: 1rem;">
+                <span class="status-indicator status-online">
+                    <span>●</span> All Systems Operational
+                </span>
+            </div>
+        </div>
+
+        <div class="demo-content">
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>📱 Core Features</h3>
+                    <p>Track food items with categories, expiry dates, storage locations, and real-time status updates. Advanced filtering and search capabilities.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>📷 AR/VR Integration</h3>
+                    <p>Experience your kitchen in augmented reality. Visualize expiry dates overlaid on real food items and explore in virtual reality.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>📱 Barcode Scanner</h3>
+                    <p>Quickly add items by scanning barcodes. Auto-populate product information and set smart expiry predictions.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>👥 Real-time Collaboration</h3>
+                    <p>Share your food inventory with family members. Real-time updates and notifications for expiring items.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>📊 Analytics Dashboard</h3>
+                    <p>Comprehensive insights into your food consumption patterns, waste analysis, and smart shopping recommendations.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>🔄 Smart Predictions</h3>
+                    <p>AI-powered expiry predictions based on item type, storage conditions, and historical consumption patterns.</p>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin: 3rem 0;">
+                <h2 style="color: #1e293b; margin-bottom: 1rem;">📈 System Statistics</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalItems">0</div>
+                        <div class="stat-label">Total Items</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="freshItems">0</div>
+                        <div class="stat-label">Fresh Items</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="expiringItems">0</div>
+                        <div class="stat-label">Expiring Soon</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="expiredItems">0</div>
+                        <div class="stat-label">Expired Items</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin: 3rem 0;">
+                <h2 style="color: #1e293b; margin-bottom: 2rem;">🚀 Launch Enhanced Tracker</h2>
+                <p style="color: #64748b; margin-bottom: 2rem;">
+                    Click the button below to experience the full-featured food expiry tracker with all advanced capabilities.
+                </p>
+                <button class="demo-button" onclick="launchTracker()">
+                    Launch Food Expiry Tracker
+                </button>
+            </div>
+
+            <div style="text-align: center; margin: 3rem 0;">
+                <h2 style="color: #1e293b; margin-bottom: 2rem;">✨ Key Features Demo</h2>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem; margin: 2rem 0;">
+                    <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <h4 style="color: #4f46e5; margin: 0 0 1rem 0;">Smart Notifications</h4>
+                        <p style="color: #64748b; margin: 0; font-size: 0.9rem;">
+                            Get notified before items expire. Customizable alert thresholds and smart scheduling.
+                        </p>
+                    </div>
+
+                    <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <h4 style="color: #4f46e5; margin: 0 0 1rem 0;">Waste Reduction</h4>
+                        <p style="color: #64748b; margin: 0; font-size: 0.9rem;">
+                            Track consumption patterns to minimize food waste and optimize your shopping habits.
+                        </p>
+                    </div>
+
+                    <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <h4 style="color: #4f46e5; margin: 0 0 1rem 0;">Multi-Platform Sync</h4>
+                        <p style="color: #64748b; margin: 0; font-size: 0.9rem;">
+                            Access your food inventory from any device with real-time synchronization.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mock data for demonstration
+        const mockFoodItems = [
+            {
+                id: '1',
+                name: 'Organic Milk 2L',
+                category: 'dairy',
+                quantity: 1,
+                unit: 'pieces',
+                purchaseDate: '2024-01-15',
+                expiryDate: '2024-01-25',
+                storageLocation: 'fridge',
+                status: 'fresh',
+                notes: 'Bought from local farm'
+            },
+            {
+                id: '2',
+                name: 'Fresh Spinach',
+                category: 'vegetables',
+                quantity: 200,
+                unit: 'grams',
+                purchaseDate: '2024-01-18',
+                expiryDate: '2024-01-22',
+                storageLocation: 'fridge',
+                status: 'expiring_soon',
+                notes: 'Use within 2 days'
+            },
+            {
+                id: '3',
+                name: 'Chicken Breast',
+                category: 'meat',
+                quantity: 500,
+                unit: 'grams',
+                purchaseDate: '2024-01-16',
+                expiryDate: '2024-01-20',
+                storageLocation: 'freezer',
+                status: 'expired',
+                notes: 'Best used today'
+            }
+        ];
+
+        // Update stats
+        function updateStats() {
+            const totalItems = mockFoodItems.length;
+            const freshItems = mockFoodItems.filter(item => item.status === 'fresh').length;
+            const expiringItems = mockFoodItems.filter(item => item.status === 'expiring_soon').length;
+            const expiredItems = mockFoodItems.filter(item => item.status === 'expired').length;
+
+            document.getElementById('totalItems').textContent = totalItems;
+            document.getElementById('freshItems').textContent = freshItems;
+            document.getElementById('expiringItems').textContent = expiringItems;
+            document.getElementById('expiredItems').textContent = expiredItems;
+        }
+
+        // Initialize
+        updateStats();
+
+        // Launch tracker function
+        function launchTracker() {
+            alert('🚀 Enhanced Food Expiry Tracker Launched!\n\n' +
+                  '✨ Features Available:\n' +
+                  '• AR/VR Kitchen Visualization\n' +
+                  '• Barcode Scanner Integration\n' +
+                  '• Real-time Collaboration\n' +
+                  '• Advanced Analytics Dashboard\n' +
+                  '• Smart Expiry Predictions\n' +
+                  '• Multi-device Synchronization\n\n' +
+                  '📱 The tracker includes all advanced features for comprehensive food management!');
+        }
+
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            const buttons = document.querySelectorAll('.demo-button, .feature-card');
+            buttons.forEach(button => {
+                button.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-2px)';
+                    this.style.boxShadow = '0 10px 20px rgba(79, 70, 229, 0.2)';
+                });
+
+                button.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.boxShadow = 'none';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
